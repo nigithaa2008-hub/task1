@@ -1,39 +1,38 @@
-import sys
+from flask import Flask, request, jsonify, render_template
 from pymongo import MongoClient
 
-# Connect to MongoDB
-try:
-    client = MongoClient("mongodb://localhost:27017/", serverSelectionTimeoutMS=2000)
-    # Force a connection check
-    client.admin.command('ping')
-    print("Connected")
-except Exception as err:
-    print("Connection error:", err)
-    sys.exit(1)
+app = Flask(__name__)
 
-# Select database and collection
+client = MongoClient("mongodb://localhost:27017/")
 db = client["mydatabase"]
 users_collection = db["users"]
 
-attempt = 0
+@app.route("/")
+def home():
+    return render_template("index.html")
 
-while attempt < 3:
-    name = input("enter the name: ")
-    password = input("enter the password: ")
+@app.route("/register", methods=["POST"])
+def register():
+    data = request.json
 
-    if not name.isalpha() or not password.isdigit():
-        print("Invalid input, try again")
-        attempt += 1
-    else:
-        print("correct name")
-        print("correct password")
-        
-        # Save to database
-        user_data = {"name": name, "password": password}
-        users_collection.insert_one(user_data)
-        print("Registered and saved to database successfully")
-        print("done")
-        break
+    if not data:
+        return jsonify({"message": "No data received"})
 
-if attempt == 3:
-    print("register cannot be done")
+    name = data.get("name", "")
+    password = data.get("password", "")
+
+    if not name.isalpha():
+        return jsonify({"message": "Name should contain only letters"})
+
+    if not password.isdigit():
+        return jsonify({"message": "Password should contain only numbers"})
+
+    users_collection.insert_one({
+        "name": name,
+        "password": password
+    })
+
+    return jsonify({"message": "Registered Successfully"})
+
+if __name__ == "__main__":
+    app.run(debug=True)

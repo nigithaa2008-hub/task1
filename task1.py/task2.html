@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>User Registration</title>
+</head>
+
+<body>
+
+    <h2>User Registration Form</h2>
+
+    <label>Name:</label>
+    <input type="text" id="name">
+    <br><br>
+
+    <label>Password:</label>
+    <input type="text" id="password">
+    <br><br>
+
+    <button onclick="registerUser()">Register</button>
+
+    <p id="result"></p>
+
+    <script>
+        function registerUser() {
+
+            const name = document.getElementById("name").value;
+            const password = document.getElementById("password").value;
+
+            fetch("http://127.0.0.1:5000/register", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    name: name,
+                    password: password
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("result").innerText = data.message;
+                })
+                .catch(error => {
+                    document.getElementById("result").innerText =
+                        "Error connecting to backend";
+                });
+
+        }
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Register</title>
+</head>
+
+<body>
+
+    <h2>Register Form</h2>
+
+    <form id="form">
+        Name: <input type="text" id="name"><br><br>
+        Password: <input type="text" id="password"><br><br>
+        <button type="submit">Register</button>
+    </form>
+
+    <p id="result"></p>
+
+    <script>
+        document.getElementById("form").addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            fetch("/register", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    name: document.getElementById("name").value,
+                    password: document.getElementById("password").value
+                })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById("result").innerText = data.message;
+                });
+        });
+    </script>
+
+</body>
+
+</html>

@@ -1,3 +1,20 @@
+import sys
+from pymongo import MongoClient
+
+# Connect to MongoDB
+try:
+    client = MongoClient("mongodb://localhost:27017/", serverSelectionTimeoutMS=2000)
+    # Force a connection check
+    client.admin.command('ping')
+    print("Connected")
+except Exception as err:
+    print("Connection error:", err)
+    sys.exit(1)
+
+# Select database and collection
+db = client["mydatabase"]
+users_collection = db["users"]
+
 attempt = 0
 
 while attempt < 3:
@@ -10,6 +27,11 @@ while attempt < 3:
     else:
         print("correct name")
         print("correct password")
+        
+        # Save to database
+        user_data = {"name": name, "password": password}
+        users_collection.insert_one(user_data)
+        print("Registered and saved to database successfully")
         print("done")
         break
 
